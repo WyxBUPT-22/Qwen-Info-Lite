@@ -1,7 +1,7 @@
 1. 北邮22级信通院武宇新 大数据课程与设计课设项目
 2. 如有任何问题、建议、指导，请发送邮件至wuyuxin55@bupt.edu.cn
 3. 项目尚未合并权重，只上传了LoRA微调的少量权重文件；故使用前请先下载相关基础模型并按照代码注释配置相关路径（建议于魔塔社区下载）
-4. 项目中用到了graphrag-visualizer以可视化知识图谱；如欲了解具体内容，请访问相关项目https://github.com/microsoft/graphrag及https://github.com/noworneverev/graphrag-visualizer
+4. 项目中用到了graphrag-visualizer以可视化知识图谱；如欲了解具体内容，请访问相关项目https://github.com/microsoft/graphrag 及  https://github.com/noworneverev/graphrag-visualizer
 5. 若要使用graphrag，请自行配置env中的apikey和settings.yaml中的模型；请按照所使用模型的使用文档进行配置
 6. finetune.py为微调脚本；inf_model.py为项目运行脚本；index.html为简单的前端页面；如果前端页面无法运行，请检查前后端端口是否匹配
 7. 其余配置请见代码注释
