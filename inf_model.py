@@ -117,7 +117,7 @@ except Exception as e:
 
 # --- 配置 ---
 # Qwen 模型配置
-BASE_MODEL_DEFINITION_PATH = ".cache/modelscope/hub/models/Qwen/Qwen2___5-1___5B-Instruct"
+BASE_MODEL_DEFINITION_PATH = ".cache/modelscope/hub/models/Qwen/Qwen2___5-1___5B-Instruct" #Qwen2.5-1.5B-instruct基础模型路径，请按需替换；下同
 ADAPTER_DEFINITION_PATH = "qwen2.5-1.5b-finetuned"
 BASE_MODEL_CALCULATION_PATH = ".cache/modelscope/hub/models/Qwen/Qwen2___5-Math-1___5B-Instruct"
 ADAPTER_CALCULATION_PATH = "qwen2.5-1.5b-math-finetuned-info-theory-loss-eval"
