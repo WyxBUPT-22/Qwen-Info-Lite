@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>信息论智能助手</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f7f9;
+            color: #333;
+            line-height: 1.6;
+        }
+        .main-container {
+            max-width: 1200px; /* 增加最大宽度以容纳两列 */
+            margin: 20px auto;
+            background-color: #fff;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: flex; /* 使用 Flexbox 布局 */
+            gap: 30px; /* 列之间的间距 */
+        }
+        .qa-section, .graphrag-section {
+            flex: 1; /* 每列占用等宽空间 */
+            min-width: 400px; /* 最小宽度，防止内容过窄 */
+        }
+         h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 25px;
+            /* grid-column: span 2; This was for grid layout, remove for flex */
+        }
+        .section-title {
+             color: #2c3e50;
+             text-align: center;
+             margin-bottom: 20px;
+             border-bottom: 2px solid #e0e0e0;
+             padding-bottom: 10px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+        textarea, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #d1d9e0;
+            border-radius: 5px;
+            box-sizing: border-box;
+            margin-bottom: 15px;
+            font-size: 1rem;
+        }
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        select {
+            appearance: none; /* For custom arrow, if desired later */
+            background-color: #fff; /* Ensure select background is white */
+             padding-right: 30px; /* Space for arrow */
+             background-image: url('data:image/svg+xml;utf8,<svg fill="%23555" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
+             background-repeat: no-repeat;
+             background-position: right 10px center;
+             background-size: 12px;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s ease;
+            display: block;
+            width: 100%;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        button:disabled {
+            background-color: #a0c4e0;
+            cursor: not-allowed;
+        }
+         .response-title {
+            margin-top: 20px; /* Adjust margin */
+            color: #2c3e50;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 10px;
+        }
+        .response-area {
+            margin-top: 15px;
+            padding: 15px;
+            border: 1px solid #e0e6eb;
+            background-color: #fdfdfd;
+            min-height: 150px;
+            white-space: pre-wrap;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        .loader-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+        }
+        .loader {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #3498db;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            display: none;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .error-message {
+            color: #e74c3c;
+            background-color: #fdedec;
+            border: 1px solid #f5c6cb;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        hr {
+            margin: 40px 0;
+            border: 0;
+            border-top: 1px solid #eee;
+        }
+        @media (max-width: 768px) {
+            .main-container {
+                flex-direction: column; /* 在小屏幕上堆叠列 */
+                gap: 20px;
+            }
+        }
+
+    </style>
+    <script> // MathJax Configuration
+      MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']],
+          displayMath: [['$$', '$$'], ['\\[', '\\]']],
+          processEscapes: true
+        },
+        svg: {
+          fontCache: 'global'
+        },
+        options: {
+          skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+          ignoreHtmlClass: 'tex2jax_ignore',
+          processHtmlClass: 'tex2jax_process'
+        }
+      };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+    <!-- Add a main title spanning both sections -->
+    <h1 style="text-align: center; color: #2c3e50; margin-bottom: 20px;">信息论智能助手</h1>
+
+    <div class="main-container">
+        <div class="qa-section">
+            <h2 class="section-title">Qwen 微调模型问答</h2> <!-- Modified Title -->
+            <div class="form-group">
+                <label for="questionType">请选择问题类型：</label>
+                <select id="questionType">
+                    <option value="calculation">证明/计算类</option>
+                    <option value="definition">定义类</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="promptInput">请输入您的问题：</label>
+                <textarea id="promptInput" placeholder="例如：请证明香农熵的非负性 H(X) >= 0。 或 什么是互信息？"></textarea>
+            </div>
+            <button id="submitButton" onclick="submitPrompt()">提交问题</button> <!-- Button Text unchanged -->
+            <div class="loader-container">
+                <div class="loader" id="loader"></div>
+            </div>
+            <div id="errorDisplay" class="error-message" style="display:none;"></div>
+            <h2 class="response-title">模型回答：</h2>
+            <div id="responseArea" class="response-area">
+                请在此输入问题并点击“提交问题”以获取回答。
+            </div>
+        </div>
+
+        <div class="graphrag-section">
+            <h2 class="section-title">LLM+GraphRAG 知识图谱问答</h2> <!-- Modified Title -->
+             <!-- Removed Query Method Select Box -->
+             <!--
+             <div class="form-group">
+                <label for="graphRagMethod">查询方法：</label>
+                <select id="graphRagMethod">
+                    <option value="local">Local (社区问答)</option>
+                </select>
+            </div>
+            -->
+            <div class="form-group">
+                <!-- Changed Label Text to be similar to Qwen side -->
+                <label for="graphRagQueryInput">请输入您的问题：</label>
+                <textarea id="graphRagQueryInput" placeholder="例如：熵是什么？ 或 互信息与条件熵的关系"></textarea>
+            </div>
+            <!-- Changed Button Text to be similar to Qwen side -->
+            <button id="submitGraphRagButton" onclick="submitGraphRagQuery()">提交问题</button>
+            <div class="loader-container">
+                <div class="loader" id="graphRagLoader"></div>
+            </div>
+            <div id="graphRagErrorDisplay" class="error-message" style="display:none;"></div>
+            <h2 class="response-title">模型回答：</h2> <!-- Changed Response Title -->
+            <div id="graphRagResponseArea" class="response-area">
+                请在此输入问题并点击“提交问题”以获取回答。
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Qwen Section ---
+        const promptInput = document.getElementById('promptInput');
+        const questionTypeSelect = document.getElementById('questionType');
+        const responseArea = document.getElementById('responseArea');
+        const loader = document.getElementById('loader');
+        const submitButton = document.getElementById('submitButton');
+        const errorDisplay = document.getElementById('errorDisplay');
+
+        // --- GraphRAG Section ---
+        const graphRagQueryInput = document.getElementById('graphRagQueryInput');
+        // const graphRagMethodSelect = document.getElementById('graphRagMethod'); // Removed as element is gone
+        const graphRagResponseArea = document.getElementById('graphRagResponseArea');
+        const graphRagLoader = document.getElementById('graphRagLoader');
+        const submitGraphRagButton = document.getElementById('submitGraphRagButton');
+        const graphRagErrorDisplay = document.getElementById('graphRagErrorDisplay');
+
+        // 后端API的URL
+        const backendUrl = 'http://localhost:6007'; // 确保与后端监听的端口一致
+
+        // --- Qwen Submission Function ---
+        async function submitPrompt() {
+            const promptText = promptInput.value.trim();
+            const selectedQuestionType = questionTypeSelect.value;
+            if (!promptText) {
+                displayError("请输入问题！", errorDisplay);
+                return;
+            }
+            if (!selectedQuestionType) {
+                 displayError("请选择问题类型！", errorDisplay);
+                return;
+            }
+
+            // Clear previous content and errors for Qwen section
+            responseArea.innerHTML = '';
+            displayError("", errorDisplay, false); // Hide error
+
+            // Show loader and disable button for Qwen section
+            loader.style.display = 'block';
+            submitButton.disabled = true;
+            submitButton.textContent = '正在思考...';
+
+            try {
+                const response = await fetch(`${backendUrl}/generate`, { // Use /generate endpoint
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        prompt: promptText,
+                        question_type: selectedQuestionType
+                    }),
+                });
+
+                if (!response.ok) {
+                    let errorMsg = `HTTP error! Status: ${response.status}`;
+                    try {
+                        const errorData = await response.json();
+                        errorMsg = errorData.error || errorData.message || errorMsg;
+                    } catch (e) {
+                        errorMsg = response.statusText || errorMsg;
+                    }
+                    throw new Error(errorMsg);
+                }
+
+                const data = await response.json();
+                if (data.response) {
+                    responseArea.textContent = data.response; // First, set plain text
+                    // Then, request MathJax rendering
+                    if (window.MathJax && MathJax.typesetPromise) {
+                        MathJax.typesetPromise([responseArea]).catch(function (err) {
+                            console.error('MathJax typesetting error (Qwen): ' + err.message);
+                            displayError('MathJax渲染错误 (Qwen): ' + err.message, errorDisplay);
+                            responseArea.innerHTML += '<p style="color:orange;font-size:small;">(MathJax 渲染部分公式时可能出现问题)</p>';
+                        });
+                    } else {
+                        console.warn('MathJax or typesetPromise not available. LaTeX might not render.');
+                        responseArea.innerHTML += '<p style="color:orange;font-size:small;">(MathJax 未就绪, LaTeX 可能无法渲染)</p>';
+                    }
+                } else if (data.error || data.message) {
+                    displayError(`模型或服务器返回错误 (Qwen): ${data.error || data.message}`, errorDisplay);
+                } else {
+                    displayError('收到了意外的响应格式 (Qwen)。', errorDisplay);
+                }
+
+            } catch (error) {
+                console.error('Qwen 请求失败:', error);
+                displayError('Qwen 请求失败: ' + error.message, errorDisplay);
+                responseArea.textContent = '抱歉，无法获取回答。请检查网络连接或后端服务状态。';
+            } finally {
+                // Hide loader and re-enable button for Qwen section
+                loader.style.display = 'none';
+                submitButton.disabled = false;
+                submitButton.textContent = '提交问题';
+            }
+        }
+
+        // --- GraphRAG Submission Function ---
+        async function submitGraphRagQuery() {
+            const queryText = graphRagQueryInput.value.trim();
+            // Method is now hardcoded to 'local' as the select box is removed
+            const selectedMethod = 'local';
+
+            if (!queryText) {
+                displayError("请输入问题！", graphRagErrorDisplay); // Changed text
+                return;
+            }
+
+            // Clear previous content and errors for GraphRAG section
+            graphRagResponseArea.innerHTML = '';
+            displayError("", graphRagErrorDisplay, false); // Hide error
+
+            // Show loader and disable button for GraphRAG section
+            graphRagLoader.style.display = 'block';
+            submitGraphRagButton.disabled = true;
+            submitGraphRagButton.textContent = '正在思考...'; // Changed text
+
+            try {
+                const response = await fetch(`${backendUrl}/query_graphrag`, { // Use /query_graphrag endpoint
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        query: queryText,
+                        method: selectedMethod // This will be 'local'
+                    }),
+                });
+
+                if (!response.ok) {
+                    let errorMsg = `HTTP error! Status: ${response.status}`;
+                     try {
+                        const errorData = await response.json();
+                        errorMsg = errorData.error || errorData.message || errorMsg;
+                    } catch (e) {
+                        errorMsg = response.statusText || errorMsg;
+                    }
+                    throw new Error(errorMsg);
+                }
+
+                const data = await response.json();
+                 if (data.response) {
+                    graphRagResponseArea.textContent = data.response; // First, set plain text
+                     // Then, request MathJax rendering for GraphRAG response area
+                    if (window.MathJax && MathJax.typesetPromise) {
+                        MathJax.typesetPromise([graphRagResponseArea]).catch(function (err) {
+                             console.error('MathJax typesetting error (GraphRAG): ' + err.message);
+                            displayError('MathJax渲染错误 (GraphRAG): ' + err.message, graphRagErrorDisplay);
+                            graphRagResponseArea.innerHTML += '<p style="color:orange;font-size:small;">(MathJax 渲染部分公式时可能出现问题)</p>';
+                        });
+                    } else {
+                        console.warn('MathJax or typesetPromise not available. LaTeX might not render.');
+                        graphRagResponseArea.innerHTML += '<p style="color:orange;font-size:small;">(MathJax 未就绪, LaTeX 可能无法渲染)</p>';
+                    }
+                } else if (data.error || data.message) {
+                    displayError(`模型或服务器返回错误 (GraphRAG): ${data.error || data.message}`, graphRagErrorDisplay); // Consistent error source name
+                }
+                 else {
+                    displayError('收到了意外的响应格式 (GraphRAG)。', graphRagErrorDisplay);
+                }
+
+            } catch (error) {
+                console.error('GraphRAG 请求失败:', error);
+                displayError('GraphRAG 请求失败: ' + error.message, graphRagErrorDisplay);
+                graphRagResponseArea.textContent = '抱歉，无法获取回答。请检查网络连接或后端服务状态。'; // Changed text
+            } finally {
+                // Hide loader and re-enable button for GraphRAG section
+                graphRagLoader.style.display = 'none';
+                submitGraphRagButton.disabled = false;
+                submitGraphRagButton.textContent = '提交问题'; // Changed text
+            }
+        }
+
+        // Helper function to display errors in a specific element
+        function displayError(message, errorElement, show = true) {
+            errorElement.textContent = message;
+            errorElement.style.display = show && message ? 'block' : 'none';
+        }
+
+        // Allow Enter key (non-Shift+Enter) submission for Qwen input
+        promptInput.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                submitButton.click();
+            }
+        });
+
+        // Allow Enter key (non-Shift+Enter) submission for GraphRAG input
+        graphRagQueryInput.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                submitGraphRagButton.click();
+            }
+        });
+
+         // Initial state for response areas
+         responseArea.textContent = '请在此输入问题并点击“提交问题”以获取回答。';
+         graphRagResponseArea.textContent = '请在此输入问题并点击“提交问题”以获取回答。'; // Changed text
+
+    </script>
+</body>
+</html>
