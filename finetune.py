@@ -182,7 +182,7 @@ class CustomDataCollator(DataCollatorMixin):
 
 
 # --- 参数配置 ---
-model_path = ".cache/modelscope/hub/models/Qwen/Qwen2___5-1___5B-Instruct"  # 模型路径
+model_path = ".cache/modelscope/hub/models/Qwen/Qwen2___5-1___5B-Instruct"  # 基础模型路径，请按需修改
 dataset_path = "finetune_data_converted.json"  # 数据集路径
 output_dir = "./qwen2.5-1.5b-finetuned"  # 输出路径
 tensorboard_log_dir = os.path.join(output_dir, "tf-logs") # TensorBoard 日志放在输出目录内
